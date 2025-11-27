@@ -152,7 +152,11 @@ export const AlertsTable: FC<AlertsTableProps> = ({ alerts, isLoading }) => {
         </Table.Header>
         <Table.Body>
           {filteredAlerts.length === 0 ? (
-            <div>No results match the search query.</div>
+            <Table.Row>
+              <Table.Cell colSpan={7}>
+                No results match the search query.
+              </Table.Cell>
+            </Table.Row>
           ) : (
             filteredAlerts.map((alert) => (
               <Table.Row key={alert.id}>
