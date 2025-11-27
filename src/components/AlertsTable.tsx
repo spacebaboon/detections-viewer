@@ -1,7 +1,11 @@
 import { FC, useState } from 'react';
 import { Alert } from 'types/types';
-import { Table } from '@radix-ui/themes';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Table, TextField } from '@radix-ui/themes';
+import {
+  ChevronUpIcon,
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+} from '@radix-ui/react-icons';
 
 interface AlertsTableProps {
   alerts: Alert[];
@@ -12,6 +16,8 @@ export const AlertsTable: FC<AlertsTableProps> = ({ alerts, isLoading }) => {
   // Use created at as initial sort order, to show most recent first
   const [sortColumn, setSortColumn] = useState<keyof Alert | null>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleSortClick = (column: keyof Alert) => {
     if (sortColumn === column) {
@@ -36,12 +42,31 @@ export const AlertsTable: FC<AlertsTableProps> = ({ alerts, isLoading }) => {
     return 0;
   });
 
+  const filteredAlerts = sortedAlerts.filter((alert) => {
+    return (
+      alert.severity.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      alert.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      alert.categoryRef.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      alert.status.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
   return (
     <>
+      <TextField.Root
+        placeholder="Search the alerts..."
+        aria-label="Search"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      >
+        <TextField.Slot>
+          <MagnifyingGlassIcon height="16" width="16" />
+        </TextField.Slot>
+      </TextField.Root>
       <Table.Root>
         <Table.Header>
           <Table.Row>
@@ -94,17 +119,21 @@ export const AlertsTable: FC<AlertsTableProps> = ({ alerts, isLoading }) => {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {sortedAlerts.map((alert) => (
-            <Table.Row key={alert.id}>
-              <Table.Cell>{alert.createdAt}</Table.Cell>
-              <Table.Cell>{alert.severity}</Table.Cell>
-              <Table.Cell>{alert.title}</Table.Cell>
-              <Table.Cell>{alert.categoryRef}</Table.Cell>
-              <Table.Cell>{alert.status}</Table.Cell>
-              <Table.Cell>{alert.acknowledgedAt}</Table.Cell>
-              <Table.Cell>{alert.resolvedAt}</Table.Cell>
-            </Table.Row>
-          ))}
+          {filteredAlerts.length === 0 ? (
+            <div>No results match the search query.</div>
+          ) : (
+            filteredAlerts.map((alert) => (
+              <Table.Row key={alert.id}>
+                <Table.Cell>{alert.createdAt}</Table.Cell>
+                <Table.Cell>{alert.severity}</Table.Cell>
+                <Table.Cell>{alert.title}</Table.Cell>
+                <Table.Cell>{alert.categoryRef}</Table.Cell>
+                <Table.Cell>{alert.status}</Table.Cell>
+                <Table.Cell>{alert.acknowledgedAt}</Table.Cell>
+                <Table.Cell>{alert.resolvedAt}</Table.Cell>
+              </Table.Row>
+            ))
+          )}
         </Table.Body>
       </Table.Root>
     </>
@@ -146,9 +175,9 @@ const TableHeader: FC<TableHeaderProps> = ({
         {displayName}
         {sortColumn === id ? (
           sortDirection === 'asc' ? (
-            <ChevronUp aria-hidden="true" />
+            <ChevronUpIcon aria-hidden="true" />
           ) : (
-            <ChevronDown aria-hidden="true" />
+            <ChevronDownIcon aria-hidden="true" />
           )
         ) : null}
       </div>

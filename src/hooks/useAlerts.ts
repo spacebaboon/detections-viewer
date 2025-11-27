@@ -31,7 +31,7 @@ export const useAlerts = (options?: {
 
       const params: Record<string, string> = {
         page: '0',
-        limit: '100',
+        limit: '50',
       };
       const queryString = new URLSearchParams(params).toString();
 

@@ -70,6 +70,53 @@ describe('AlertsTable', () => {
   });
 
   describe('data filtering', () => {
-    it.todo('filters data when user types in search input');
+    it('filters data when user types in search input', async () => {
+      render(<AlertsTable alerts={dummyDataAlerts} isLoading={false} />);
+
+      expect(screen.getByText(/Emergency Account usage/)).toBeInTheDocument();
+      expect(screen.getByText(/Process Injection/)).toBeInTheDocument();
+
+      const searchInput = screen.getByRole('textbox', {
+        name: 'Search',
+      });
+      await userEvent.type(searchInput, 'Process Injection');
+
+      expect(screen.getByText(/Process Injection/)).toBeInTheDocument();
+      expect(
+        screen.queryByText(/Emergency Account usage/),
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows a messsage when no rows match the search term', async () => {
+      render(<AlertsTable alerts={dummyDataAlerts} isLoading={false} />);
+
+      const searchInput = screen.getByRole('textbox', {
+        name: 'Search',
+      });
+      await userEvent.type(
+        searchInput,
+        "They're taking the Hobbits to Isengard",
+      );
+
+      expect(
+        screen.getByText('No results match the search query.'),
+      ).toBeInTheDocument();
+    });
+
+    it('shows matching results again after search term removed', async () => {
+      render(<AlertsTable alerts={dummyDataAlerts} isLoading={false} />);
+      expect(screen.getAllByRole('row').length).toBe(11);
+
+      const searchInput = screen.getByRole('textbox', {
+        name: 'Search',
+      });
+      await userEvent.type(searchInput, 'Emergency');
+
+      expect(screen.getAllByRole('row').length).toBe(2);
+
+      await userEvent.clear(searchInput);
+
+      expect(screen.getAllByRole('row').length).toBe(11);
+    });
   });
 });

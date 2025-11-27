@@ -37,7 +37,7 @@ describe('useAlerts', () => {
 
     it('calls the endpoint with the query params and auth header', () => {
       expect(vi.mocked(fetch)).toHaveBeenCalledWith(
-        BASE_API_URL + '/detections?page=0&limit=100',
+        BASE_API_URL + '/detections?page=0&limit=50',
         expect.objectContaining({
           headers: {
             Authorization: 'TEST_AUTH_HEADER',
