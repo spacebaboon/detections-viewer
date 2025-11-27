@@ -25,7 +25,7 @@ describe('AlertsTable', () => {
   describe('when loading', () => {
     it('renders the loading state', () => {
       render(<AlertsTable alerts={[]} isLoading={true} />);
-      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(screen.getByLabelText('Loading alerts')).toBeInTheDocument();
     });
   });
 
