@@ -1,0 +1,75 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { AlertsTable } from './AlertsTable';
+import { dummyDataAlerts } from 'test/dummyData';
+
+describe('AlertsTable', () => {
+  const user = userEvent.setup();
+
+  describe('column headers', () => {
+    it.each([
+      'Created at',
+      'Severity',
+      'Title',
+      'Category',
+      'Acknowledged at',
+      'Resolved at',
+    ])('renders the table columns', (column) => {
+      render(<AlertsTable alerts={dummyDataAlerts} isLoading={false} />);
+      expect(
+        screen.getByRole('rowheader', { name: column }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('when loading', () => {
+    it('renders the loading state', () => {
+      render(<AlertsTable alerts={[]} isLoading={true} />);
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
+    });
+  });
+
+  describe('data sorting', () => {
+    it('sorts by created at descending by default', async () => {
+      render(<AlertsTable alerts={dummyDataAlerts} isLoading={false} />);
+
+      const timestampHeader = screen.getByRole('rowheader', {
+        name: 'Created at',
+      });
+      expect(timestampHeader).toHaveAttribute('aria-sort', 'descending');
+    });
+
+    it('sorts data when column header clicked', async () => {
+      render(<AlertsTable alerts={dummyDataAlerts} isLoading={false} />);
+
+      const categoryHeader = screen.getByRole('rowheader', {
+        name: 'Category',
+      });
+      await user.click(categoryHeader);
+      expect(categoryHeader).toHaveAttribute('aria-sort', 'ascending');
+
+      const allRows = screen.getAllByRole('row');
+      const numRows = allRows.length;
+
+      expect(numRows).toBe(11); // +1 for header row
+      expect(allRows[1].textContent).toMatch(/malicious_behavior_on_a_system/);
+      expect(allRows[numRows - 1].textContent).toMatch(
+        /unusual_software_activity/,
+      );
+    });
+
+    it('toggles data sort direction when column header clicked again', async () => {
+      render(<AlertsTable alerts={dummyDataAlerts} isLoading={false} />);
+
+      const idHeader = screen.getByRole('rowheader', { name: 'Severity' });
+      await user.click(idHeader);
+      expect(idHeader).toHaveAttribute('aria-sort', 'ascending');
+      await user.click(idHeader);
+      expect(idHeader).toHaveAttribute('aria-sort', 'descending');
+    });
+  });
+
+  describe('data filtering', () => {
+    it.todo('filters data when user types in search input');
+  });
+});

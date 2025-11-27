@@ -4,7 +4,7 @@ import { useAlerts } from 'hooks/useAlerts';
 
 const App: React.FC = () => {
   const { alerts, loading, error } = useAlerts({
-    useFakeData: true,
+    useFakeData: false,
     fakeTimeout: 0,
   });
   return (
