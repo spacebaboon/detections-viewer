@@ -8,7 +8,7 @@ import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 const App: React.FC = () => {
   const [darkMode, setDarkMode] = React.useState(true);
   const { alerts, loading, error } = useAlerts({
-    useFakeData: true,
+    useFakeData: false,
     fakeTimeout: 0,
   });
   return (

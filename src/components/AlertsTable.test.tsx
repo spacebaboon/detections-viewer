@@ -8,12 +8,12 @@ describe('AlertsTable', () => {
 
   describe('column headers', () => {
     it.each([
-      'Created at',
+      'Created',
       'Severity',
       'Title',
       'Category',
-      'Acknowledged at',
-      'Resolved at',
+      'Acknowledged',
+      'Resolved',
     ])('renders the table columns', (column) => {
       render(<AlertsTable alerts={dummyDataAlerts} isLoading={false} />);
       expect(
@@ -34,7 +34,7 @@ describe('AlertsTable', () => {
       render(<AlertsTable alerts={dummyDataAlerts} isLoading={false} />);
 
       const timestampHeader = screen.getByRole('rowheader', {
-        name: 'Created at',
+        name: 'Created',
       });
       expect(timestampHeader).toHaveAttribute('aria-sort', 'descending');
     });
@@ -52,9 +52,9 @@ describe('AlertsTable', () => {
       const numRows = allRows.length;
 
       expect(numRows).toBe(11); // +1 for header row
-      expect(allRows[1].textContent).toMatch(/malicious_behavior_on_a_system/);
+      expect(allRows[1].textContent).toMatch(/Malicious behavior on a system/);
       expect(allRows[numRows - 1].textContent).toMatch(
-        /unusual_software_activity/,
+        /Unusual software activity/,
       );
     });
 

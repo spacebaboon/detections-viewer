@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { Alert } from 'types/types';
 import { vi } from 'vitest';
-import { BASE_API_URL, useAlerts } from './useAlerts';
+import { useAlerts } from './useAlerts';
 import { dummyDataAlerts } from 'test/dummyData';
 
 const mockAlerts: Alert[] = dummyDataAlerts;
@@ -13,6 +13,7 @@ describe('useAlerts', () => {
     beforeEach(() => {
       vi.restoreAllMocks();
       vi.stubEnv('VITE_AUTH_HEADER', 'TEST_AUTH_HEADER');
+      vi.stubEnv('VITE_API_URL', 'https://api.example.com');
 
       vi.stubGlobal(
         'fetch',
@@ -37,7 +38,7 @@ describe('useAlerts', () => {
 
     it('calls the endpoint with the query params and auth header', () => {
       expect(vi.mocked(fetch)).toHaveBeenCalledWith(
-        BASE_API_URL + '/detections?page=0&limit=50',
+        'https://api.example.com/detections?page=0&limit=50',
         expect.objectContaining({
           headers: {
             Authorization: 'TEST_AUTH_HEADER',
@@ -54,22 +55,23 @@ describe('useAlerts', () => {
   describe('with fetch error', () => {
     beforeEach(() => {
       vi.restoreAllMocks();
+      vi.stubEnv('VITE_AUTH_HEADER', 'TEST_AUTH_HEADER');
+      vi.stubEnv('VITE_API_URL', 'https://api.example.com');
 
       vi.stubGlobal(
         'fetch',
-        vi.fn().mockRejectedValue('HTTP 500: Internal Server Error'),
+        vi.fn().mockRejectedValue(new Error('HTTP 500: Internal Server Error')),
       );
     });
 
-    it('returns errors', async () => {
+    it('returns sanitised error message', async () => {
       const { result } = renderHook(() => useAlerts());
       await act(async () => {
         await new Promise((resolve) => setTimeout(resolve, 0));
       });
 
       const error = result?.current.error;
-      expect(error).not.toBeNull();
-      expect(error).toContain('HTTP 500: Internal Server Error');
+      expect(error).toBe('Failed to load alerts. Please try again later.');
     });
   });
 });

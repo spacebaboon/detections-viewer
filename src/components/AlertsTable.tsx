@@ -4,6 +4,7 @@ import { Skeleton, Table, TextField } from '@radix-ui/themes';
 import { Cross2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import TableHeader from './TableHeader';
 import { StatusPopoverCell } from './StatusPopoverCell';
+import { SeverityCell } from './SeverityCell';
 
 export interface SortState {
   column: keyof Alert;
@@ -14,6 +15,15 @@ interface AlertsTableProps {
   alerts: Alert[];
   isLoading: boolean;
 }
+
+const toSentenceCase = (str: string): string => {
+  return str
+    .split('_')
+    .map((word, index) =>
+      index === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word,
+    )
+    .join(' ');
+};
 
 export const AlertsTable: FC<AlertsTableProps> = ({ alerts, isLoading }) => {
   // Use created at as initial sort order, to show most recent first
@@ -53,7 +63,14 @@ export const AlertsTable: FC<AlertsTableProps> = ({ alerts, isLoading }) => {
   });
 
   const filteredAlerts = sortedAlerts.filter((alert) => {
-    return (alert.severity + alert.title + alert.categoryRef + alert.status)
+    return (
+      alert.severity +
+      alert.title +
+      alert.categoryRef +
+      alert.status +
+      alert.acknowledgedBy +
+      alert.resolvedBy
+    )
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
   });
@@ -140,10 +157,10 @@ export const AlertsTable: FC<AlertsTableProps> = ({ alerts, isLoading }) => {
             filteredAlerts.map((alert) => (
               <Table.Row key={alert.id}>
                 <Table.Cell>{alert.createdAt}</Table.Cell>
-                <Table.Cell>{alert.severity}</Table.Cell>
+                <SeverityCell severity={alert.severity} />
                 <Table.Cell>{alert.title}</Table.Cell>
-                <Table.Cell>{alert.categoryRef}</Table.Cell>
-                <Table.Cell>{alert.status}</Table.Cell>
+                <Table.Cell>{toSentenceCase(alert.categoryRef)}</Table.Cell>
+                <Table.Cell>{toSentenceCase(alert.status)}</Table.Cell>
                 <StatusPopoverCell
                   timestamp={alert.acknowledgedAt}
                   user={alert.acknowledgedBy}
